@@ -2,6 +2,7 @@ package com.example.chatappbe.Controllers;
 
 import com.example.chatappbe.Models.DTOs.RegistrationDTO;
 import com.example.chatappbe.Models.Message;
+import com.example.chatappbe.Services.ChatUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/")
 public class UserController {
+
+    ChatUserService chatUserService;
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationDTO registrationDTO){
@@ -28,7 +31,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new Message("Username needs to have at least 3 characters!"));
         }
-        else if (!(registrationDTO.getUsername().matches("[a-zA-Z]*"))){
+        else if (!(registrationDTO.getUsername().matches("^[a-zA-Z](.*)"))){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new Message("Username needs to start with a letter!"));
         }
@@ -46,6 +49,9 @@ public class UserController {
                     .body(new Message("Email is not in a correct format!"));
         }
 
-        return null;
+        String message = chatUserService.createUser(registrationDTO);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new Message(message));
     }
 }
